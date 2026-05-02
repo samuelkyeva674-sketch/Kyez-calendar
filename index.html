@@ -1,0 +1,81 @@
+<!DOCTYPE html><html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kenya 2026 Ultimate Calendar App</title>
+<link rel='manifest' href='manifest.json'>
+<style>
+body{font-family:Arial,sans-serif;background:linear-gradient(135deg,#0f172a,#1d4ed8);color:#fff;margin:0;padding:20px}
+.container{max-width:1200px;margin:auto}
+h1{text-align:center}
+.month{background:#ffffff12;border-radius:18px;padding:16px;margin:16px 0;backdrop-filter:blur(8px)}
+.month h2{text-align:center;margin:0 0 12px;color:#facc15}
+.grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.dayhead,.day{padding:10px;border-radius:10px;text-align:center}
+.dayhead{background:#22c55e;font-weight:bold}
+.day{background:#ffffff20;min-height:50px;position:relative}
+.today{outline:3px solid #f97316}
+.past{display:none}
+.holiday{background:#dc2626;font-weight:bold}
+.note{font-size:10px;display:block;margin-top:4px;color:#fde68a}
+</style>
+</head>
+<body>
+<div class='container'>
+<h1>Remaining 2026 Kenya Calendar</h1>
+<div id='calendar'></div>
+</div>
+<script>
+const holidays={
+'2026-01-01':'New Year', '2026-04-03':'Good Friday','2026-04-06':'Easter Monday','2026-05-01':'Labour Day','2026-06-01':'Madaraka Day','2026-10-10':'Huduma Day','2026-10-20':'Mashujaa Day','2026-12-12':'Jamhuri Day','2026-12-25':'Christmas','2026-12-26':'Boxing Day'
+};
+const monthNames=['January','February','March','April','May','June','July','August','September','October','November','December'];
+const days=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const now=new Date();
+const currentYear=2026;
+const currentMonth=(now.getFullYear()===2026)?now.getMonth():0;
+const currentDate=now.toISOString().split('T')[0];
+const cal=document.getElementById('calendar');
+for(let m=currentMonth;m<12;m++){
+ let first=new Date(currentYear,m,1);
+ let lastDay=new Date(currentYear,m+1,0).getDate();
+ let month=document.createElement('div');month.className='month';
+ month.innerHTML='<h2>'+monthNames[m]+' 2026</h2>';
+ let grid=document.createElement('div');grid.className='grid';
+ days.forEach(d=>{let x=document.createElement('div');x.className='dayhead';x.textContent=d;grid.appendChild(x)});
+ for(let i=0;i<first.getDay();i++){let blank=document.createElement('div');blank.className='day';blank.style.visibility='hidden';grid.appendChild(blank)}
+ for(let d=1;d<=lastDay;d++){
+   let cell=document.createElement('div');cell.className='day';
+   let ds=`${currentYear}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+   if(ds<currentDate) cell.classList.add('past');
+   if(ds===currentDate) cell.classList.add('today');
+   if(holidays[ds]) cell.classList.add('holiday');
+   cell.innerHTML=d+(holidays[ds]?'<span class="note">'+holidays[ds]+'</span>':'');
+   grid.appendChild(cell);
+ }
+ month.appendChild(grid);cal.appendChild(month);
+}
+setInterval(()=>location.reload(),86400000);
+function downloadPDF(){window.print();}
+function toggleDark(){document.body.classList.toggle('dark');}
+</script>
+<div style='text-align:center;margin:20px'>
+<button onclick='downloadPDF()' style='padding:12px 18px;border:none;border-radius:10px;margin:6px;background:#f59e0b;color:white;font-weight:bold'>Save / Print PDF</button>
+<button onclick='toggleDark()' style='padding:12px 18px;border:none;border-radius:10px;margin:6px;background:#10b981;color:white;font-weight:bold'>Toggle Dark Mode</button>
+</div>
+<script>
+if(Notification && Notification.permission!=='granted'){Notification.requestPermission();}
+function remindToday(){const today=new Date().toISOString().split('T')[0];if(Notification.permission==='granted'){new Notification('Today\'s Schedule',{body:'Check your calendar plans for '+today});}}
+setTimeout(remindToday,2000);
+const planner=document.createElement('div');planner.innerHTML=`<div style='max-width:900px;margin:20px auto;background:#ffffff18;padding:16px;border-radius:16px'><h2 style='text-align:center'>AI Planner Notes</h2><textarea id='notes' style='width:100%;height:120px;border-radius:10px;padding:10px' placeholder='Write your plans, exams, goals...'></textarea><br><button onclick='localStorage.setItem("planner_notes",document.getElementById("notes").value)' style='margin-top:10px;padding:10px 16px;border:none;border-radius:10px;background:#3b82f6;color:#fff'>Save Notes</button></div>`;document.body.appendChild(planner);document.getElementById('notes').value=localStorage.getItem('planner_notes')||'';
+</script><script>
+let installPrompt=null;
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();installPrompt=e;document.getElementById('installBtn').style.display='inline-block';});
+async function installApp(){if(installPrompt){installPrompt.prompt();}}
+if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js').catch(()=>{});}
+</script>
+<div style='text-align:center;margin:20px'>
+<button id='installBtn' onclick='installApp()' style='display:none;padding:12px 18px;border:none;border-radius:10px;background:#8b5cf6;color:#fff;font-weight:bold'>Install APK/App</button>
+<div style='margin-top:10px;font-size:14px'>Install on Android from browser menu or this button when supported.</div>
+</div></body>
+</html>
